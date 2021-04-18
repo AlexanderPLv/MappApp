@@ -20,6 +20,8 @@ class MapViewController: UIViewController {
     private let locationManager = CLLocationManager()
     private let coreDataManager = CoreDataManager.shared
     
+    var onLogout: (() -> Void)?
+    
     private var startTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "play.fill",
@@ -90,6 +92,10 @@ class MapViewController: UIViewController {
         }
         let polyline = MKPolyline(coordinates: &route, count: route.count)
         mapView.addOverlay(polyline)
+        mapView.setVisibleMapRect(polyline.boundingMapRect,
+                                  edgePadding: UIEdgeInsets(top: 20, left: 20,
+                                                            bottom: 20, right: 20),
+                                  animated: true)
         
     }
     
@@ -105,11 +111,26 @@ class MapViewController: UIViewController {
         setupLocationManager()
         setupMapView()
         setupStartButton()
+        setupLogoutButton()
+    }
+    
+    private func setupLogoutButton() {
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title:
+                                                            "Logout",
+                                                           style: .plain,
+                                                           target: self,
+                                                           action: #selector(handleLogout))
+    }
+    
+    @objc private func handleLogout() {
+        UserDefaults.standard.setValue(false, forKey: "isLogin")
+        onLogout?()
     }
     
     private func clearRoute() {
         route.removeAll()
         coreDataManager.removeAll()
+        mapView.removeOverlays(mapView.overlays)
     }
     
     private func setupStartButton() {
@@ -184,7 +205,6 @@ class MapViewController: UIViewController {
             break
         }
     }
-    
 }
 
 extension MapViewController :  MKMapViewDelegate {
@@ -216,6 +236,15 @@ extension MapViewController: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
        handleAuthorizationStatus(locationManager: manager)
 }
+    
+    private func showAlert(with message: String) {
+        let alertController = UIAlertController(title: "Network Error",
+                                                message: (message + " No data is currently available. Please pull down to refresh."),
+                                                preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Ok",
+                                                style: .cancel))
+        present(alertController, animated: true)
+    }
     
 
 }
