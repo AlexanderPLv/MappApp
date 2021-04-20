@@ -129,7 +129,7 @@ class MapViewController: UIViewController {
     
     private func clearRoute() {
         route.removeAll()
-        coreDataManager.removeAll()
+        coreDataManager.removeAllCoordinates()
         mapView.removeOverlays(mapView.overlays)
     }
     
@@ -199,7 +199,6 @@ class MapViewController: UIViewController {
         case .authorizedWhenInUse:
             mapView.showsUserLocation = true
             centerViewToUserLocation()
-            
         @unknown default:
             // show err alert
             break

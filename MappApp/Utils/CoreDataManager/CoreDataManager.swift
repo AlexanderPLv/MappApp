@@ -39,7 +39,20 @@ class CoreDataManager {
         }
     }
     
-    func removeAll() {
+    func fetchUsers() -> [User] {
+        let context = persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<User>(entityName: "User")
+        do {
+            let coordinates = try context.fetch(fetchRequest)
+            return coordinates
+        } catch let fetchErr {
+            print("Failed to fetch coordinates:", fetchErr)
+            return []
+        }
+    }
+    
+    func removeAllCoordinates() {
         let context = persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Coordinate")
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)

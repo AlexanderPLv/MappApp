@@ -6,8 +6,13 @@
 //
 
 import UIKit
+import CoreData
+import Combine
 
 class SignInViewController: UIViewController {
+    
+    private let coreDataManager = CoreDataManager.shared
+    private var cancellable: AnyCancellable?
     
     private var logoView: UIView = {
        let view = UIView()
@@ -20,39 +25,24 @@ class SignInViewController: UIViewController {
         return view
     }()
     
-    private let emailTextField: UITextField = {
+    @Published private var emailTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Email"
         tf.backgroundColor = .white
         tf.borderStyle = .roundedRect
         tf.font = UIFont.systemFont(ofSize: 14)
-        tf.addTarget(self, action: #selector(handleTextInputChange), for: .editingChanged)
-        
         return tf
     }()
     
-   private let passwordTextField: UITextField = {
+    @Published private var passwordTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Password"
         tf.isSecureTextEntry = true
         tf.backgroundColor = .white
         tf.borderStyle = .roundedRect
         tf.font = UIFont.systemFont(ofSize: 14)
-        tf.addTarget(self, action: #selector(handleTextInputChange), for: .editingChanged)
         return tf
     }()
-    
-    @objc func handleTextInputChange() {
-        let isFormValid = emailTextField.text?.count ?? 0 > 0 && passwordTextField.text?.count ?? 0 > 0
-        
-        if isFormValid {
-            signInButton.isEnabled = true
-            signInButton.backgroundColor = .black
-        } else {
-            signInButton.isEnabled = false
-            signInButton.backgroundColor = .lightGray
-        }
-    }
     
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
@@ -61,18 +51,13 @@ class SignInViewController: UIViewController {
         button.layer.cornerRadius = 5
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         button.setTitleColor(.white, for: .normal)
-        button.addTarget(self, action: #selector(goToSignUp),
+        button.addTarget(self, action: #selector(trySignUp),
                          for: .touchUpInside)
         button.isEnabled = true
-        
         return button
     }()
     
-    @objc private func goToSignUp() {
-       
-    }
-    
-    lazy var signInButton: UIButton = {
+    private lazy var signInButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("SIGN IN", for: .normal)
         button.backgroundColor = .lightGray
@@ -83,13 +68,61 @@ class SignInViewController: UIViewController {
                          action: #selector(handleLogin),
                          for: .touchUpInside)
         button.isEnabled = false
-        
         return button
     }()
     
+    @objc private func trySignUp() {
+        let context = coreDataManager.persistentContainer.viewContext
+        let users = coreDataManager.fetchUsers()
+        users.forEach {
+            if $0.login == emailTextField.text &&
+                $0.password == passwordTextField.text {
+                showAlert(title: "Sign Up Error.",
+                          with: "Such user already exists.")
+            }
+            if $0.login == emailTextField.text &&
+                $0.password != passwordTextField.text {
+                $0.password = passwordTextField.text
+                do {
+                  try context.save()
+                    showAlert(title: "Success.", with: "User password changed.")
+                } catch {
+                    showAlert(title: "Sign Up Error",
+                              with: "Failed to change password. Please try again.")
+                }
+            }
+            guard $0.login != emailTextField.text &&
+                    $0.password != passwordTextField.text else { return }
+            createUser(with: context)
+        }
+        guard users.count == 0 else { return }
+        createUser(with: context)
+    }
+    
+    private func createUser(with context: NSManagedObjectContext) {
+        let user = NSEntityDescription.insertNewObject(forEntityName: "User",
+                                                          into: context)
+        user.setValue(emailTextField.text, forKey: "login")
+        user.setValue(passwordTextField.text, forKey: "password")
+        do {
+          try context.save()
+            showAlert(title: "Success.", with: "User created.")
+        } catch {
+            showAlert(title: "Sign Up Error",
+                      with: "Failed to create user. Please try again.")
+        }
+    }
+    
     @objc private func handleLogin() {
-        UserDefaults.standard.setValue(true, forKey: "isLogin")
-        onLogin?()
+        let users = coreDataManager.fetchUsers()
+        users.forEach {
+            if $0.login == emailTextField.text && $0.password == passwordTextField.text {
+                UserDefaults.standard.setValue(true, forKey: "isLogin")
+                onLogin?()
+            } else {
+                showAlert(title: "Login Error.", with: "There is no such user. Please try again.")
+            }
+        }
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -102,14 +135,41 @@ class SignInViewController: UIViewController {
         super.viewDidLoad()
         navigationController?.navigationBar.isHidden = true
         view.backgroundColor = .systemPurple
-        view.addSubview(logoView)
-        logoView.anchor(top: view.topAnchor, left: view.leftAnchor,
-                        bottom: nil, right: view.rightAnchor,
-                        paddingTop: 0,paddingLeft: 0,
-                        paddingBottom: 0, paddingRight: 0,
-                        width: 0, height: view.frame.height / 3)
+        setupLogoView()
         setupInputFields()
+        cancellable = validToSubmit
+            .receive(on: RunLoop.main)
+            .sink { isValid in
+                if isValid {
+                    self.signInButton.isEnabled = true
+                    self.signUpButton.isEnabled = true
+                    self.signInButton.backgroundColor = .black
+                    self.signUpButton.backgroundColor = .black
+                } else {
+                    self.signInButton.isEnabled = false
+                    self.signUpButton.isEnabled = false
+                    self.signInButton.backgroundColor = .lightGray
+                    self.signUpButton.backgroundColor = .lightGray
+                }
+            }
     }
+    
+    private var validToSubmit: AnyPublisher<Bool, Never> {
+        return Publishers.CombineLatest(emailTextField.textPublisher,
+                                        passwordTextField.textPublisher)
+            .map { login, password in
+                !login.isEmpty && !password.isEmpty
+            }.eraseToAnyPublisher()
+    }
+    
+    fileprivate func setupLogoView() {
+            view.addSubview(logoView)
+            logoView.anchor(top: view.topAnchor, left: view.leftAnchor,
+                            bottom: nil, right: view.rightAnchor,
+                            paddingTop: 0,paddingLeft: 0,
+                            paddingBottom: 0, paddingRight: 0,
+                            width: 0, height: view.frame.height / 3)
+        }
     
     private func setupInputFields() {
         let stackView = VerticalStackView(arrangedSubviews: [
@@ -125,6 +185,15 @@ class SignInViewController: UIViewController {
                          paddingTop: 40, paddingLeft: 40,
                          paddingBottom: 0, paddingRight: 40,
                          width: 0, height: 140)
+    }
+    
+    private func showAlert(title: String, with message: String) {
+        let alertController = UIAlertController(title: title,
+                                                message: (message),
+                                                preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Ok",
+                                                style: .cancel))
+        present(alertController, animated: true)
     }
     
 }

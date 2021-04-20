@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		C9812F9F2628354B009B3EC0 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9812F9E2628354B009B3EC0 /* CoreDataManager.swift */; };
 		C9812FA826283639009B3EC0 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C9812FA626283639009B3EC0 /* Model.xcdatamodeld */; };
-		C9812FC426289F1D009B3EC0 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9812FC326289F1D009B3EC0 /* User.swift */; };
 		C9812FC92628A054009B3EC0 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9812FC82628A054009B3EC0 /* SignInViewController.swift */; };
 		C9A9AE92262C4CF50022477B /* VerticalStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9AE91262C4CF50022477B /* VerticalStackView.swift */; };
 		C9A9AE98262C4DC00022477B /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A9AE97262C4DC00022477B /* BaseCoordinator.swift */; };
@@ -24,6 +23,8 @@
 		C9C3D0B0261B176700713DE8 /* MappAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C3D0AF261B176700713DE8 /* MappAppUITests.swift */; };
 		C9C3D0D8261B195B00713DE8 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C3D0D7261B195B00713DE8 /* MapViewController.swift */; };
 		C9C3D0E1261B1E3200713DE8 /* UIView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C3D0E0261B1E3200713DE8 /* UIView+Layout.swift */; };
+		C9C43053262EFB160060EFC4 /* UIControl+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */; };
+		C9C43058262EFDED0060EFC4 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,7 +47,6 @@
 /* Begin PBXFileReference section */
 		C9812F9E2628354B009B3EC0 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		C9812FA726283639009B3EC0 /* Coordinate.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Coordinate.xcdatamodel; sourceTree = "<group>"; };
-		C9812FC326289F1D009B3EC0 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C9812FC82628A054009B3EC0 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		C9A9AE91262C4CF50022477B /* VerticalStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalStackView.swift; sourceTree = "<group>"; };
 		C9A9AE97262C4DC00022477B /* BaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
@@ -67,6 +67,8 @@
 		C9C3D0B1261B176700713DE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C9C3D0D7261B195B00713DE8 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		C9C3D0E0261B1E3200713DE8 /* UIView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Layout.swift"; sourceTree = "<group>"; };
+		C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIControl+Combine.swift"; sourceTree = "<group>"; };
+		C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,7 +116,6 @@
 			isa = PBXGroup;
 			children = (
 				C9812FA4262835C9009B3EC0 /* CoreDataModel */,
-				C9812FC326289F1D009B3EC0 /* User.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -255,6 +256,8 @@
 			children = (
 				C9C3D0E0261B1E3200713DE8 /* UIView+Layout.swift */,
 				C9A9AE91262C4CF50022477B /* VerticalStackView.swift */,
+				C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */,
+				C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */,
 			);
 			path = UIViewExtensions;
 			sourceTree = "<group>";
@@ -392,13 +395,14 @@
 				C9A9AEA2262C52DA0022477B /* AuthCoordinator.swift in Sources */,
 				C9812FA826283639009B3EC0 /* Model.xcdatamodeld in Sources */,
 				C9C3D08E261B176200713DE8 /* AppDelegate.swift in Sources */,
+				C9C43053262EFB160060EFC4 /* UIControl+Combine.swift in Sources */,
 				C9C3D0D8261B195B00713DE8 /* MapViewController.swift in Sources */,
 				C9812FC92628A054009B3EC0 /* SignInViewController.swift in Sources */,
 				C9812F9F2628354B009B3EC0 /* CoreDataManager.swift in Sources */,
 				C9A9AE98262C4DC00022477B /* BaseCoordinator.swift in Sources */,
 				C9C3D090261B176200713DE8 /* SceneDelegate.swift in Sources */,
 				C9A9AEAA262C5E3B0022477B /* MapCoordinator.swift in Sources */,
-				C9812FC426289F1D009B3EC0 /* User.swift in Sources */,
+				C9C43058262EFDED0060EFC4 /* UITextField+Combine.swift in Sources */,
 				C9A9AE92262C4CF50022477B /* VerticalStackView.swift in Sources */,
 				C9A9AE9D262C51E60022477B /* ApplicationCoordinator.swift in Sources */,
 			);
