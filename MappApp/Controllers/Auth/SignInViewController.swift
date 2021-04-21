@@ -25,7 +25,7 @@ class SignInViewController: UIViewController {
         return view
     }()
     
-    @Published private var emailTextField: UITextField = {
+    private var emailTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Email"
         tf.backgroundColor = .white
@@ -34,7 +34,7 @@ class SignInViewController: UIViewController {
         return tf
     }()
     
-    @Published private var passwordTextField: UITextField = {
+    private var passwordTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Password"
         tf.isSecureTextEntry = true
@@ -53,7 +53,7 @@ class SignInViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.addTarget(self, action: #selector(trySignUp),
                          for: .touchUpInside)
-        button.isEnabled = true
+        button.isEnabled = false
         return button
     }()
     
@@ -77,18 +77,19 @@ class SignInViewController: UIViewController {
         users.forEach {
             if $0.login == emailTextField.text &&
                 $0.password == passwordTextField.text {
-                showAlert(title: "Sign Up Error.",
-                          with: "Such user already exists.")
+                let alert = UIAlertController.signUpError()
+                present(alert, animated: true)
             }
             if $0.login == emailTextField.text &&
                 $0.password != passwordTextField.text {
                 $0.password = passwordTextField.text
                 do {
                   try context.save()
-                    showAlert(title: "Success.", with: "User password changed.")
+                    present(UIAlertController.passwordChanged(),
+                            animated: true)
                 } catch {
-                    showAlert(title: "Sign Up Error",
-                              with: "Failed to change password. Please try again.")
+                    present(UIAlertController.passwordChangeFail(),
+                            animated: true)
                 }
             }
             guard $0.login != emailTextField.text &&
@@ -106,10 +107,9 @@ class SignInViewController: UIViewController {
         user.setValue(passwordTextField.text, forKey: "password")
         do {
           try context.save()
-            showAlert(title: "Success.", with: "User created.")
+            present(UIAlertController.userCreated(), animated: true)
         } catch {
-            showAlert(title: "Sign Up Error",
-                      with: "Failed to create user. Please try again.")
+            present(UIAlertController.failUserCreate(), animated: true)
         }
     }
     
@@ -120,7 +120,7 @@ class SignInViewController: UIViewController {
                 UserDefaults.standard.setValue(true, forKey: "isLogin")
                 onLogin?()
             } else {
-                showAlert(title: "Login Error.", with: "There is no such user. Please try again.")
+                present(UIAlertController.noSuchUser(), animated: true)
             }
         }
     }
@@ -140,17 +140,7 @@ class SignInViewController: UIViewController {
         cancellable = validToSubmit
             .receive(on: RunLoop.main)
             .sink { isValid in
-                if isValid {
-                    self.signInButton.isEnabled = true
-                    self.signUpButton.isEnabled = true
-                    self.signInButton.backgroundColor = .black
-                    self.signUpButton.backgroundColor = .black
-                } else {
-                    self.signInButton.isEnabled = false
-                    self.signUpButton.isEnabled = false
-                    self.signInButton.backgroundColor = .lightGray
-                    self.signUpButton.backgroundColor = .lightGray
-                }
+                self.toggleButtons(isValid)
             }
     }
     
@@ -162,13 +152,25 @@ class SignInViewController: UIViewController {
             }.eraseToAnyPublisher()
     }
     
+    private func toggleButtons(_ isValid: Bool) {
+        if isValid {
+            [signUpButton, signInButton].forEach {
+                $0.isEnabled = true
+                $0.backgroundColor = .black
+            }
+            } else {
+                [signUpButton, signInButton].forEach {
+                    $0.isEnabled = false
+                    $0.backgroundColor = .lightGray
+        } } }
+    
     fileprivate func setupLogoView() {
             view.addSubview(logoView)
             logoView.anchor(top: view.topAnchor, left: view.leftAnchor,
                             bottom: nil, right: view.rightAnchor,
                             paddingTop: 0,paddingLeft: 0,
                             paddingBottom: 0, paddingRight: 0,
-                            width: 0, height: view.frame.height / 3)
+                            width: 0, height: UIScreen.main.bounds.height / 3)
         }
     
     private func setupInputFields() {
@@ -185,15 +187,6 @@ class SignInViewController: UIViewController {
                          paddingTop: 40, paddingLeft: 40,
                          paddingBottom: 0, paddingRight: 40,
                          width: 0, height: 140)
-    }
-    
-    private func showAlert(title: String, with message: String) {
-        let alertController = UIAlertController(title: title,
-                                                message: (message),
-                                                preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Ok",
-                                                style: .cancel))
-        present(alertController, animated: true)
     }
     
 }

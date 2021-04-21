@@ -44,10 +44,10 @@ class CoreDataManager {
         
         let fetchRequest = NSFetchRequest<User>(entityName: "User")
         do {
-            let coordinates = try context.fetch(fetchRequest)
-            return coordinates
+            let users = try context.fetch(fetchRequest)
+            return users
         } catch let fetchErr {
-            print("Failed to fetch coordinates:", fetchErr)
+            print("Failed to fetch users:", fetchErr)
             return []
         }
     }

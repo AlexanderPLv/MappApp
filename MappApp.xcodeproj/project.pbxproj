@@ -25,6 +25,8 @@
 		C9C3D0E1261B1E3200713DE8 /* UIView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C3D0E0261B1E3200713DE8 /* UIView+Layout.swift */; };
 		C9C43053262EFB160060EFC4 /* UIControl+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */; };
 		C9C43058262EFDED0060EFC4 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */; };
+		C9DB6EFA2630123700AE81EA /* CLLocationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB6EF92630123700AE81EA /* CLLocationProxy.swift */; };
+		C9DB6F022630947000AE81EA /* UIAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB6F012630947000AE81EA /* UIAlertController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,8 @@
 		C9C3D0E0261B1E3200713DE8 /* UIView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Layout.swift"; sourceTree = "<group>"; };
 		C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIControl+Combine.swift"; sourceTree = "<group>"; };
 		C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
+		C9DB6EF92630123700AE81EA /* CLLocationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLLocationProxy.swift; sourceTree = "<group>"; };
+		C9DB6F012630947000AE81EA /* UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,7 @@
 		C9812F9C2628351A009B3EC0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				C9DB6EF82630114400AE81EA /* CLLocationProxy */,
 				C9812F9D26283526009B3EC0 /* CoreDataManager */,
 			);
 			path = Utils;
@@ -258,8 +263,17 @@
 				C9A9AE91262C4CF50022477B /* VerticalStackView.swift */,
 				C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */,
 				C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */,
+				C9DB6F012630947000AE81EA /* UIAlertController.swift */,
 			);
 			path = UIViewExtensions;
+			sourceTree = "<group>";
+		};
+		C9DB6EF82630114400AE81EA /* CLLocationProxy */ = {
+			isa = PBXGroup;
+			children = (
+				C9DB6EF92630123700AE81EA /* CLLocationProxy.swift */,
+			);
+			path = CLLocationProxy;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -402,6 +416,8 @@
 				C9A9AE98262C4DC00022477B /* BaseCoordinator.swift in Sources */,
 				C9C3D090261B176200713DE8 /* SceneDelegate.swift in Sources */,
 				C9A9AEAA262C5E3B0022477B /* MapCoordinator.swift in Sources */,
+				C9DB6EFA2630123700AE81EA /* CLLocationProxy.swift in Sources */,
+				C9DB6F022630947000AE81EA /* UIAlertController.swift in Sources */,
 				C9C43058262EFDED0060EFC4 /* UITextField+Combine.swift in Sources */,
 				C9A9AE92262C4CF50022477B /* VerticalStackView.swift in Sources */,
 				C9A9AE9D262C51E60022477B /* ApplicationCoordinator.swift in Sources */,
