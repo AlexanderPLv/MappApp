@@ -8,16 +8,6 @@
 import UIKit
 
 extension UIAlertController {
-    static func signOutConfirmation(onConfirm: @escaping () -> Void) -> UIAlertController {
-        let ok = UIAlertAction(title: "OK", style: .default) { _ in onConfirm() }
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        let alert = UIAlertController(title: nil, message: "Are you sure?", preferredStyle: .alert)
-        alert.addAction(ok)
-        alert.addAction(cancel)
-        
-        return alert
-    }
     
     static func signUpError() -> UIAlertController {
         let ok = UIAlertAction(title: "OK", style: .cancel)
@@ -70,6 +60,26 @@ extension UIAlertController {
                                       message: "There is no such user. Please try again.",
                                       preferredStyle: .alert)
         alert.addAction(ok)
+        return alert
+    }
+    
+    static func showAlert(with message: String) -> UIAlertController {
+        let ok = UIAlertAction(title: "OK", style: .cancel)
+        let alert = UIAlertController(title: nil,
+                                      message: message,
+                                      preferredStyle: .alert)
+        alert.addAction(ok)
+        return alert
+    }
+    
+    static func stopTracking(onConfirm: @escaping () -> Void) -> UIAlertController {
+        let ok = UIAlertAction(title: "OK", style: .default) { _ in onConfirm() }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        let alert = UIAlertController(title: nil,
+                                      message: "You want to stop the current tracking?",
+                                      preferredStyle: .alert)
+        alert.addAction(ok)
+        alert.addAction(cancel)
         return alert
     }
     

@@ -27,6 +27,7 @@
 		C9C43058262EFDED0060EFC4 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */; };
 		C9DB6EFA2630123700AE81EA /* CLLocationProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB6EF92630123700AE81EA /* CLLocationProxy.swift */; };
 		C9DB6F022630947000AE81EA /* UIAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB6F012630947000AE81EA /* UIAlertController.swift */; };
+		C9EEAA1C2631B6CA00888915 /* CoreDataError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9EEAA1B2631B6CA00888915 /* CoreDataError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 		C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
 		C9DB6EF92630123700AE81EA /* CLLocationProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLLocationProxy.swift; sourceTree = "<group>"; };
 		C9DB6F012630947000AE81EA /* UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.swift; sourceTree = "<group>"; };
+		C9EEAA1B2631B6CA00888915 /* CoreDataError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				C9812F9E2628354B009B3EC0 /* CoreDataManager.swift */,
+				C9EEAA1B2631B6CA00888915 /* CoreDataError.swift */,
 			);
 			path = CoreDataManager;
 			sourceTree = "<group>";
@@ -417,6 +420,7 @@
 				C9C3D090261B176200713DE8 /* SceneDelegate.swift in Sources */,
 				C9A9AEAA262C5E3B0022477B /* MapCoordinator.swift in Sources */,
 				C9DB6EFA2630123700AE81EA /* CLLocationProxy.swift in Sources */,
+				C9EEAA1C2631B6CA00888915 /* CoreDataError.swift in Sources */,
 				C9DB6F022630947000AE81EA /* UIAlertController.swift in Sources */,
 				C9C43058262EFDED0060EFC4 /* UITextField+Combine.swift in Sources */,
 				C9A9AE92262C4CF50022477B /* VerticalStackView.swift in Sources */,

@@ -15,6 +15,11 @@ class MapViewController: UIViewController {
     
     private var steps: [CLLocationCoordinate2D] = []
     private var route: [CLLocationCoordinate2D] = []
+    private var profileImage: UIImage? {
+        didSet {
+            print("image setup")
+        }
+    }
     private var navigationStarted = false
     private let locationDistance: Double = 500
     private let mapView = MKMapView()
@@ -67,18 +72,11 @@ class MapViewController: UIViewController {
     @objc private func handleStopTrack() {
         guard navigationStarted else { return }
         locationProxy.disable()
-        let context = coreDataManager.persistentContainer.viewContext
-        for (index, step) in steps.enumerated() {
-            let coordinate = Coordinate(context: context)
-            coordinate.step = Int32(index)
-            coordinate.latitude = step.latitude
-            coordinate.longitude = step.longitude
-            do {
-              try context.save()
-            } catch let saveErr {
-                print("Failed to save coordinate:", saveErr)
-                // Alert
-            }
+        do {
+           try coreDataManager.saveCurrentRoute(with: steps)
+        } catch let saveErr {
+            present(UIAlertController.showAlert(with: saveErr.localizedDescription),
+                    animated: true)
         }
         navigationStarted = false
         mapView.removeOverlays(mapView.overlays)
@@ -86,19 +84,24 @@ class MapViewController: UIViewController {
     }
     
     @objc private func handleShowTrack() {
-        guard !navigationStarted else { return }
-        let coordinates = coreDataManager.fetchCoordinates()
-        coordinates.forEach {
-            let step = CLLocationCoordinate2D(latitude: $0.latitude,
-                                              longitude: $0.longitude)
-            self.route.append(step)
+        if !navigationStarted {
+            let coordinates = coreDataManager.fetchCoordinates()
+                    coordinates.forEach {
+                        let step = CLLocationCoordinate2D(latitude: $0.latitude,
+                                                          longitude: $0.longitude)
+                        self.route.append(step)
+                    }
+                    let polyline = MKPolyline(coordinates: &route, count: route.count)
+                    mapView.addOverlay(polyline)
+                    mapView.setVisibleMapRect(polyline.boundingMapRect,
+                                              edgePadding: UIEdgeInsets(top: 20, left: 20,
+                                                                        bottom: 20, right: 20),
+                                              animated: true)
+        } else {
+            present(UIAlertController.stopTracking(onConfirm: { self.handleStopTrack() }),
+                    animated:  true)
         }
-        let polyline = MKPolyline(coordinates: &route, count: route.count)
-        mapView.addOverlay(polyline)
-        mapView.setVisibleMapRect(polyline.boundingMapRect,
-                                  edgePadding: UIEdgeInsets(top: 20, left: 20,
-                                                            bottom: 20, right: 20),
-                                  animated: true)
+        
     }
     
     @objc private func handleStartTrack() {
@@ -114,6 +117,7 @@ class MapViewController: UIViewController {
         setupMapView()
         setupStartButton()
         setupLogoutButton()
+        setupImagePickerButton()
         
         locationProxy
             .authorizationPublisher
@@ -144,6 +148,17 @@ class MapViewController: UIViewController {
                                                            style: .plain,
                                                            target: self,
                                                            action: #selector(handleLogout))
+    }
+    
+    private func setupImagePickerButton() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add Photo",
+                                                            style: .plain,
+                                                            target: self,
+                                                            action: #selector(imagePIckTapped))
+    }
+    
+    @objc private func imagePIckTapped() {
+        showChooseSourceTypeAlertController()
     }
     
     @objc private func handleLogout() {
@@ -191,7 +206,6 @@ class MapViewController: UIViewController {
                                         longitudinalMeters: locationDistance)
         mapView.setRegion(region, animated: true)
     }
-    
 }
 
 extension MapViewController :  MKMapViewDelegate {
@@ -200,4 +214,44 @@ extension MapViewController :  MKMapViewDelegate {
         renderer.strokeColor = .systemBlue
         return renderer
     }
+}
+
+extension MapViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    private func showChooseSourceTypeAlertController() {
+        let alert = UIAlertController(title: nil,
+                                      message: nil,
+                                      preferredStyle: .actionSheet)
+        let photoLibraryAction = UIAlertAction(title: "Choose a Photo",
+                                               style: .default) { (action) in
+            self.showImagePickerController(sourceType: .photoLibrary)
+        }
+        let cameraAction = UIAlertAction(title: "Take a New Photo",
+                                         style: .default) { (action) in
+            self.showImagePickerController(sourceType: .camera)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel",
+                                         style: .cancel, handler: nil)
+        [photoLibraryAction, cameraAction, cancelAction] .forEach{
+            alert.addAction($0)
+        }
+        present(alert, animated: true)
+    }
+    
+    private func showImagePickerController(sourceType: UIImagePickerController.SourceType) {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        imagePickerController.sourceType = sourceType
+        present(imagePickerController, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+                   self.profileImage = editedImage.withRenderingMode(.alwaysOriginal)
+               } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                   self.profileImage = originalImage.withRenderingMode(.alwaysOriginal)
+               }
+               dismiss(animated: true, completion: nil)
+    }
+    
 }

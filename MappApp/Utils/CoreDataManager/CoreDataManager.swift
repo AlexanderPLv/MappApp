@@ -52,6 +52,21 @@ class CoreDataManager {
         }
     }
     
+    func saveCurrentRoute(with steps: [CLLocationCoordinate2D]) throws {
+        let context = persistentContainer.viewContext
+        for (index, step) in steps.enumerated() {
+            let coordinate = Coordinate(context: context)
+            coordinate.step = Int32(index)
+            coordinate.latitude = step.latitude
+            coordinate.longitude = step.longitude
+            do {
+              try context.save()
+            } catch {
+               throw CoreDataError.saveRouteError
+            }
+        }
+    }
+    
     func removeAllCoordinates() {
         let context = persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Coordinate")
@@ -60,7 +75,6 @@ class CoreDataManager {
             try context.execute(batchDeleteRequest)
         } catch let deleteErr {
             print("Failed to delete coordinates:", deleteErr)
-            // Error Handling
         }
     }
     

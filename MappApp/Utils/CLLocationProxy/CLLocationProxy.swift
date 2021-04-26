@@ -33,7 +33,15 @@ final class LocationProxy: NSObject, CLLocationManagerDelegate {
         super.init()
         manager.delegate = self
     }
-
+    
+    var locationServiceAutorized: Bool {
+        guard manager.authorizationStatus == .authorizedAlways ||
+                manager.authorizationStatus == .authorizedWhenInUse else {
+            return false
+        }
+            return true
+    }
+    
     func enable() {
         let status = manager.authorizationStatus
         if status == .authorizedAlways || status == .authorizedWhenInUse {
