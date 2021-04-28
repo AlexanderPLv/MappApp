@@ -16,7 +16,6 @@ class CoreDataManager {
     let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Model")
         container.loadPersistentStores { (description, error) in
-            
             if let error = error {
                 fatalError("Unable to load persistent stores: \(error)")
             }
@@ -64,6 +63,35 @@ class CoreDataManager {
             } catch {
                throw CoreDataError.saveRouteError
             }
+        }
+    }
+    
+    func fetchCurrentUser(with context: NSManagedObjectContext) throws -> User? {
+        guard let login = UserDefaults.standard.string(forKey: "currentLogin") else {
+            return nil
+        }
+        let fetchRequest = NSFetchRequest<User>(entityName: "User")
+        let predicate = NSPredicate(format: "login = %@", login)
+        fetchRequest.predicate = predicate
+        do {
+            let users = try context.fetch(fetchRequest)
+            return users.first
+        } catch {
+            throw CoreDataError.fetchError
+        }
+    }
+    
+    func saveCurrentPhoto(with data: Data?) {
+        guard let data = data else { return }
+        let context = persistentContainer.viewContext
+        do {
+            let user = try fetchCurrentUser(with: context)
+            if let user = user {
+                user.photo?.image = data
+                try context.save()
+            }
+        } catch let error {
+            print(error.localizedDescription)
         }
     }
     

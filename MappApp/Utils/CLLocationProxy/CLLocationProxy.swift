@@ -43,8 +43,7 @@ final class LocationProxy: NSObject, CLLocationManagerDelegate {
     }
     
     func enable() {
-        let status = manager.authorizationStatus
-        if status == .authorizedAlways || status == .authorizedWhenInUse {
+        if locationServiceAutorized {
             manager.startUpdatingLocation()
         }
     }
@@ -67,7 +66,7 @@ final class LocationProxy: NSObject, CLLocationManagerDelegate {
         let status = manager.authorizationStatus
         switch status {
         case .notDetermined:
-            manager.requestWhenInUseAuthorization()
+            break
         case .restricted:
             //Alert
         break
@@ -82,7 +81,6 @@ final class LocationProxy: NSObject, CLLocationManagerDelegate {
             print("Location auth error.")
             break
         }
-        
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

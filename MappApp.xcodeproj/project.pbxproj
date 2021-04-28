@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C9764A562639580900A7FEC7 /* UIImageExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9764A552639580900A7FEC7 /* UIImageExt.swift */; };
 		C9812F9F2628354B009B3EC0 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9812F9E2628354B009B3EC0 /* CoreDataManager.swift */; };
 		C9812FA826283639009B3EC0 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C9812FA626283639009B3EC0 /* Model.xcdatamodeld */; };
 		C9812FC92628A054009B3EC0 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9812FC82628A054009B3EC0 /* SignInViewController.swift */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C9764A552639580900A7FEC7 /* UIImageExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExt.swift; sourceTree = "<group>"; };
 		C9812F9E2628354B009B3EC0 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		C9812FA726283639009B3EC0 /* Coordinate.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Coordinate.xcdatamodel; sourceTree = "<group>"; };
 		C9812FC82628A054009B3EC0 /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				C9C43052262EFB160060EFC4 /* UIControl+Combine.swift */,
 				C9C43057262EFDED0060EFC4 /* UITextField+Combine.swift */,
 				C9DB6F012630947000AE81EA /* UIAlertController.swift */,
+				C9764A552639580900A7FEC7 /* UIImageExt.swift */,
 			);
 			path = UIViewExtensions;
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 				C9A9AE98262C4DC00022477B /* BaseCoordinator.swift in Sources */,
 				C9C3D090261B176200713DE8 /* SceneDelegate.swift in Sources */,
 				C9A9AEAA262C5E3B0022477B /* MapCoordinator.swift in Sources */,
+				C9764A562639580900A7FEC7 /* UIImageExt.swift in Sources */,
 				C9DB6EFA2630123700AE81EA /* CLLocationProxy.swift in Sources */,
 				C9EEAA1C2631B6CA00888915 /* CoreDataError.swift in Sources */,
 				C9DB6F022630947000AE81EA /* UIAlertController.swift in Sources */,

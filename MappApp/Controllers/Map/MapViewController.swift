@@ -15,22 +15,19 @@ class MapViewController: UIViewController {
     
     private var steps: [CLLocationCoordinate2D] = []
     private var route: [CLLocationCoordinate2D] = []
-    private var profileImage: UIImage? {
-        didSet {
-            print("image setup")
-        }
-    }
-    private var navigationStarted = false
+    private var profileImage: UIImage?
+    
+    private var navigationStarted: Bool = false
     private let locationDistance: Double = 500
     private let mapView = MKMapView()
     private let coreDataManager = CoreDataManager.shared
-    
+    private var locationServiceAuthorized = false
     private let locationProxy = LocationProxy()
     private var cancellables = [AnyCancellable]()
     
     var onLogout: (() -> Void)?
     
-    private var startTrackButton: UIButton = {
+    private lazy var startTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "play.fill",
                             withConfiguration: imageConfig)
@@ -43,7 +40,7 @@ class MapViewController: UIViewController {
         return button
     }()
     
-    private var stopTrackButton: UIButton = {
+    private lazy var stopTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "stop.fill",
                             withConfiguration: imageConfig)
@@ -56,7 +53,7 @@ class MapViewController: UIViewController {
         return button
     }()
     
-    private var showTrackButton: UIButton = {
+    private lazy var showTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "arrowshape.turn.up.left.circle.fill",
                             withConfiguration: imageConfig)
@@ -68,6 +65,37 @@ class MapViewController: UIViewController {
                          for: .touchUpInside)
         return button
     }()
+// MARK: ViewDidLoad
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupMapView()
+        setupStartButton()
+        setupLogoutButton()
+        setupImagePickerButton()
+        tryToFetchProfileImage()
+        
+        locationProxy
+            .authorizationPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] authorized in
+                guard let self = self else { return }
+                if authorized {
+                    self.locationServiceAuthorized = true
+                }
+            }.store(in: &cancellables)
+        
+        locationProxy
+            .locationPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] coordinate in
+                guard let self = self else { return }
+                self.centerViewToUserLocation(with: coordinate)
+                self.steps.append(coordinate)
+                let polyline = MKPolyline(coordinates: &self.steps, count: self.steps.count)
+                self.mapView.addOverlay(polyline)
+            }.store(in: &cancellables)
+        
+    }
     
     @objc private func handleStopTrack() {
         guard navigationStarted else { return }
@@ -79,6 +107,7 @@ class MapViewController: UIViewController {
                     animated: true)
         }
         navigationStarted = false
+        mapView.removeAnnotations(mapView.annotations)
         mapView.removeOverlays(mapView.overlays)
         steps.removeAll()
     }
@@ -105,56 +134,14 @@ class MapViewController: UIViewController {
     }
     
     @objc private func handleStartTrack() {
-        guard !navigationStarted else { return }
-        clearRoute()
-        locationProxy.enable()
-        navigationStarted = true
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        locationProxy.permissionRequest()
-        setupMapView()
-        setupStartButton()
-        setupLogoutButton()
-        setupImagePickerButton()
-        
-        locationProxy
-            .authorizationPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] authorized in
-                guard let self = self else { return }
-                if authorized {
-                    self.mapView.showsUserLocation = true
-                }
-            }.store(in: &cancellables)
-        
-        locationProxy
-            .locationPublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] coordinate in
-                guard let self = self else { return }
-                self.centerViewToUserLocation(with: coordinate)
-                self.steps.append(coordinate)
-                let polyline = MKPolyline(coordinates: &self.steps, count: self.steps.count)
-                self.mapView.addOverlay(polyline)
-            }.store(in: &cancellables)
-        
-    }
-    
-    private func setupLogoutButton() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title:
-                                                            "Logout",
-                                                           style: .plain,
-                                                           target: self,
-                                                           action: #selector(handleLogout))
-    }
-    
-    private func setupImagePickerButton() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add Photo",
-                                                            style: .plain,
-                                                            target: self,
-                                                            action: #selector(imagePIckTapped))
+        if locationServiceAuthorized {
+            guard !navigationStarted else { return }
+            clearRoute()
+            locationProxy.enable()
+            navigationStarted = true
+        } else {
+            locationProxy.permissionRequest()
+        }
     }
     
     @objc private func imagePIckTapped() {
@@ -171,6 +158,36 @@ class MapViewController: UIViewController {
         coreDataManager.removeAllCoordinates()
         mapView.removeOverlays(mapView.overlays)
     }
+    
+    private func tryToFetchProfileImage() {
+        let context = coreDataManager.persistentContainer.viewContext
+        do {
+            let user = try coreDataManager.fetchCurrentUser(with: context)
+            if let data = user?.photo?.image {
+                self.profileImage = UIImage(data: data)
+            }
+        } catch let error {
+          present(UIAlertController.showAlert(with: error.localizedDescription),
+                  animated: true)
+        }
+        
+    }
+    
+    // MARK: UI Setup
+    private func setupLogoutButton() {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title:
+                                                                "Logout",
+                                                               style: .plain,
+                                                               target: self,
+                                                               action: #selector(handleLogout))
+        }
+        
+        private func setupImagePickerButton() {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add Photo",
+                                                                style: .plain,
+                                                                target: self,
+                                                                action: #selector(imagePIckTapped))
+        }
     
     private func setupStartButton() {
         view.addSubview(showTrackButton)
@@ -205,17 +222,36 @@ class MapViewController: UIViewController {
                                         latitudinalMeters: locationDistance,
                                         longitudinalMeters: locationDistance)
         mapView.setRegion(region, animated: true)
+        mapView.removeAnnotations(mapView.annotations)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coordinate
+        mapView.addAnnotation(annotation)
     }
+    
 }
-
+// MARK: MKMapViewDelegate
 extension MapViewController :  MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay)
         renderer.strokeColor = .systemBlue
         return renderer
     }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        let annotationView = MKPinAnnotationView(annotation: annotation,
+                                                 reuseIdentifier: "userannotation")
+        if let image = profileImage {
+            annotationView.layer.cornerRadius = 20
+            annotationView.layer.masksToBounds = true
+            annotationView.image = image
+            return annotationView
+        } else {
+            return annotationView
+        }
+    }
+    
 }
-
+ // MARK: ImagePickerController
 extension MapViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     private func showChooseSourceTypeAlertController() {
         let alert = UIAlertController(title: nil,
@@ -247,11 +283,16 @@ extension MapViewController: UIImagePickerControllerDelegate, UINavigationContro
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-                   self.profileImage = editedImage.withRenderingMode(.alwaysOriginal)
-               } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-                   self.profileImage = originalImage.withRenderingMode(.alwaysOriginal)
-               }
-               dismiss(animated: true, completion: nil)
+            guard let image = editedImage.resizeImage() else { return }
+            profileImage = image
+            let data = image.pngData()
+            coreDataManager.saveCurrentPhoto(with: data)
+        } else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            guard let image = originalImage.resizeImage() else { return }
+            profileImage = image
+            let data = image.pngData()
+            coreDataManager.saveCurrentPhoto(with: data)
+        }
+        dismiss(animated: true, completion: nil)
     }
-    
 }

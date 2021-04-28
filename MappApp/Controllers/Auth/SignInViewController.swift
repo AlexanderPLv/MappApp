@@ -75,8 +75,8 @@ class SignInViewController: UIViewController {
         let context = coreDataManager.persistentContainer.viewContext
         let users = coreDataManager.fetchUsers()
         users.forEach {
-            if $0.login == emailTextField.text &&
-                $0.password == passwordTextField.text {
+            if ($0.login == emailTextField.text &&
+                $0.password == passwordTextField.text) {
                 present(UIAlertController.signUpError(), animated: true)
             }
             if $0.login == emailTextField.text &&
@@ -122,6 +122,7 @@ class SignInViewController: UIViewController {
             if $0.login == emailTextField.text &&
                 $0.password == passwordTextField.text {
                 UserDefaults.standard.setValue(true, forKey: "isLogin")
+                UserDefaults.standard.setValue($0.login, forKey: "currentLogin")
                 onLogin?()
             } else {
                 present(UIAlertController.noSuchUser(), animated: true)
