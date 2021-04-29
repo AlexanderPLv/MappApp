@@ -84,10 +84,13 @@ class CoreDataManager {
     func saveCurrentPhoto(with data: Data?) {
         guard let data = data else { return }
         let context = persistentContainer.viewContext
+        let photo = NSEntityDescription.insertNewObject(forEntityName: "Photo",
+                                                          into: context)
+        photo.setValue(data, forKey: "image")
         do {
             let user = try fetchCurrentUser(with: context)
             if let user = user {
-                user.photo?.image = data
+                user.setValue(photo, forKey: "photo")
                 try context.save()
             }
         } catch let error {

@@ -66,7 +66,7 @@ final class LocationProxy: NSObject, CLLocationManagerDelegate {
         let status = manager.authorizationStatus
         switch status {
         case .notDetermined:
-            break
+           permissionRequest()
         case .restricted:
             //Alert
         break

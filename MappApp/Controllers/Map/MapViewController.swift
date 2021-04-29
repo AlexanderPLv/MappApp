@@ -27,7 +27,7 @@ class MapViewController: UIViewController {
     
     var onLogout: (() -> Void)?
     
-    private lazy var startTrackButton: UIButton = {
+    private var startTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "play.fill",
                             withConfiguration: imageConfig)
@@ -40,7 +40,7 @@ class MapViewController: UIViewController {
         return button
     }()
     
-    private lazy var stopTrackButton: UIButton = {
+    private var stopTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "stop.fill",
                             withConfiguration: imageConfig)
@@ -53,7 +53,7 @@ class MapViewController: UIViewController {
         return button
     }()
     
-    private lazy var showTrackButton: UIButton = {
+    private var showTrackButton: UIButton = {
         let imageConfig = UIImage.SymbolConfiguration(scale: .large)
         let image = UIImage(systemName: "arrowshape.turn.up.left.circle.fill",
                             withConfiguration: imageConfig)
@@ -86,7 +86,7 @@ class MapViewController: UIViewController {
         
         locationProxy
             .locationPublisher
-            .receive(on: RunLoop.main)
+            .debounce(for: 0.5, scheduler: RunLoop.main)
             .sink { [weak self] coordinate in
                 guard let self = self else { return }
                 self.centerViewToUserLocation(with: coordinate)
@@ -100,16 +100,16 @@ class MapViewController: UIViewController {
     @objc private func handleStopTrack() {
         guard navigationStarted else { return }
         locationProxy.disable()
-        do {
-           try coreDataManager.saveCurrentRoute(with: steps)
-        } catch let saveErr {
-            present(UIAlertController.showAlert(with: saveErr.localizedDescription),
-                    animated: true)
-        }
         navigationStarted = false
         mapView.removeAnnotations(mapView.annotations)
         mapView.removeOverlays(mapView.overlays)
         steps.removeAll()
+        do {
+            try coreDataManager.saveCurrentRoute(with: steps)
+        } catch let saveErr {
+            present(UIAlertController.showAlert(with: saveErr.localizedDescription),
+                    animated: true)
+        }
     }
     
     @objc private func handleShowTrack() {
@@ -154,6 +154,7 @@ class MapViewController: UIViewController {
     }
     
     private func clearRoute() {
+        steps.removeAll()
         route.removeAll()
         coreDataManager.removeAllCoordinates()
         mapView.removeOverlays(mapView.overlays)
@@ -240,11 +241,14 @@ extension MapViewController :  MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let annotationView = MKPinAnnotationView(annotation: annotation,
                                                  reuseIdentifier: "userannotation")
+        annotationView.displayPriority = .required
         if let image = profileImage {
             annotationView.layer.cornerRadius = 20
             annotationView.layer.masksToBounds = true
             annotationView.image = image
-            return annotationView
+        }
+        if annotation is MKUserLocation {
+            return nil
         } else {
             return annotationView
         }
